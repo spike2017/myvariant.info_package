@@ -1,0 +1,15 @@
+myvariant = 1.0.0
+pyliftover = 0.3
+pyutilib.math = 3.3.1
+re2 = 0.2.22 (TBD)
+python-csv 0.0.11
+Datetime = 4.3
+import pandas as pd = 0.23.4
+import time = 1.0.0
+from multiprocessing import Pool = 2.6.2.1
+
+
+
+
+
+
