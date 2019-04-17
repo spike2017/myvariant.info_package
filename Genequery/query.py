@@ -123,9 +123,10 @@ class query:
         nonrs = 0
         title = {}
         outputs = []
-        # print("\ntest end, real begin")
-        if (self.outputtype != 'csv') :
-            fileb.write('##fileformat=VCFv4.1 \n##fileDate=' + str(datetime.datetime.now()) + '\n##version=hg19 \n##CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO')
+        if (self.outputtype == 'vcf') :
+            fileb.write('##fileformat=VCFv4.1 \n##fileDate=' +
+            str(datetime.datetime.now()) +
+             '\n##version=hg19 \n##CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO')
         for lines in file:
             lineNumber = lineNumber + 1
             if (lines[0] != '#' and lines[0] != '>' and lineNumber >= self.lineBegin and lineNumber <= self.lineEnd):
@@ -140,22 +141,25 @@ class query:
                     if (self.filetype == 'vcf'):
                         queryinfo = self.vcfFileProcessor(wordslist, self.hgversion, self.lo)
                         if (self.fieldKeyWords == 'None') :
-                            print('140 : queryInfo' + self.filetype)
-                            print('141: ' + queryinfo)
+                            #print('140 : queryInfo' + self.filetype)
+                            #print('141: ' + queryinfo)
                             result = self.mv.getvariant(queryinfo)
                         else:
                             result = self.mv.getvariant(queryinfo ,fields =self.fieldKeyWords)
                     elif (self.filetype == '23andme' or self.filetype == 'ancestry'):
                         queryinfo = self.AncestryAndmeProcessor(wordslist, self.hgversion, self.lo)
-                        print(queryinfo)
+                        #print(queryinfo)
                         if (self.fieldKeyWords == 'None') :
                             #print('130: ' + queryinfo)
                             result = self.mv.query(queryinfo)
                         else:
-                            print('133: ' + queryinfo + ',fields=' + self.fieldKeyWords)
+                            #print('133: ' + queryinfo + ',fields=' + self.fieldKeyWords)
                             result = self.mv.query(queryinfo , fields= self.fieldKeyWords)
                         if (self.outputtype == 'vcf'):
-                            output = wordslist[1] + '\t' + wordslist[2] + '\t' + wordslist[0] +'\t' + wordslist[3][0] + '\t' + wordslist[3][1] +  '\t.\t.\t'
+                            output = (wordslist[1] + '\t' + wordslist[2] + '\t' +
+                                wordslist[0] +'\t' + wordslist[3][0] + '\t' +
+                                 wordslist[3][1] +  '\t.\t.\t')
+                            result = result['hits'][0]
                         elif (self.outputtype == 'csv') :
                             print(result)
                             result = result['hits'][0]
@@ -174,7 +178,14 @@ class query:
                     continue
                 #print(queryinfo)
                 if (result != "" and self.outputtype =='vcf'):
-                    print(str(lines) + '\t' + str(result))
+                    test_output = {'info' : queryinfo}
+                    print(type(result))
+                    self.expansion(result, test_output, '')
+                    result = ""
+                    for keys in test_output :
+                        result = result + str(keys) + ": " + str(test_output[keys]) + " "
+                    print(result)
+                    #print(str(output) + '181\t' + str(result))
                     fileb.write(str(output)+ '\t' + str(result) + '\n' )
                 elif (result != "" and self.outputtype == 'csv') :
                     test_output = {'info' : queryinfo}
@@ -211,7 +222,7 @@ class query:
         fileb.close()
 
 
-demo = query('23andme_small.txt','test2.csv','23andme','csv', 19,'None',29,50)
+demo = query('../Data/23andme_small.txt','test2.txt','23andme','vcf', 19,'None',29,29)
 demo.genequery()
 
 #'emv.clinvar_rcv, emv.egl_classification, emv.egl_protein, emv.egl_variant, emv.gene, emv.hgvs'
